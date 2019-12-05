@@ -233,7 +233,7 @@ namespace POSMGP.View
                     }
                     databaseConnection.Close();
                     MessageBox.Show("Payment Successful!");
-                    lvPurchaseList.Items.Clear();
+                    lvPurchaseList.ItemsSource = null;
                     lblTotalCostDisplay.Content = "";
                     lblTotalItemsDisplay.Content = "";
                     tbPayment.Text = "";

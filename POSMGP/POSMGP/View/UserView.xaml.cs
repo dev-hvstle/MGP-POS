@@ -37,8 +37,47 @@ namespace POSMGP.View
 
             }
             loadUsers();
+            loadUserType();
         }
 
+
+        void loadUserType()
+        {
+            String query = "SELECT * FROM tbl_usertype";
+
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand databaseCommand = new MySqlCommand(query, databaseConnection);
+            databaseCommand.CommandTimeout = 60;
+            MySqlDataReader reader;
+
+            try
+            {
+                databaseConnection.Open();
+                reader = databaseCommand.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        if (LoginModel.userRights == "SuperUser") { 
+                            UserTypeModel tmp = new UserTypeModel { userType = reader.GetString(0) };
+                            cbUserType.Items.Add(tmp.userType);
+                        }
+                        else
+                        {
+                            UserTypeModel tmp = new UserTypeModel { userType = reader.GetString(0) };
+                            if (tmp.userType != "SuperAdmin")
+                            {
+                                cbUserType.Items.Add(tmp.userType);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         void loadDeletedUser()
         {
@@ -62,7 +101,7 @@ namespace POSMGP.View
                 {
                     while (reader.Read())
                     {
-                        UserModel tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), isPriority = reader.GetInt16(8) };
+                        UserModel tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), timeModified = reader.GetString(8) ,isPriority = reader.GetInt16(9) };
 
                         userList.Add(tmp);
                         lvUser.Items.Add(tmp);
@@ -80,7 +119,7 @@ namespace POSMGP.View
         private void loadUsers()
         {
             lvUser.Items.Clear();
-            String query = "SELECT * FROM tbl_users WHERE isPriority=1";
+            String query = "SELECT * FROM tbl_users WHERE isPriority=1 AND userType<>'SuperAdmin'";
 
             if (LoginModel.userRights == "SuperAdmin")
             {
@@ -106,7 +145,7 @@ namespace POSMGP.View
                         UserModel tmp;
                         if (LoginModel.userRights == "SuperAdmin")
                         {
-                            tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), isPriority = reader.GetInt16(8) };
+                            tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), timeModified = reader.GetString(8), isPriority = reader.GetInt16(9) };
                         }else
                         {
                             tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd") };
@@ -147,7 +186,7 @@ namespace POSMGP.View
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
             lvUser.Items.Clear();
-            string query = "INSERT INTO tbl_users(`userFirstName`, `userMiddleName`,`userLastName`,`userPassword`,`userName`,`userType`, `dateModified`) VALUES (@userFName, @userMName, @userLName, @userPass, @userName, @userType, @dateModified)";
+            string query = "INSERT INTO tbl_users(`userFirstName`, `userMiddleName`,`userLastName`,`userPassword`,`userName`,`userType`, `dateModified`, `timeModified`) VALUES (@userFName, @userMName, @userLName, @userPass, @userName, @userType, @dateModified, @timeModified)";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
             commandDatabase.CommandTimeout = 60;
@@ -159,6 +198,7 @@ namespace POSMGP.View
             commandDatabase.Parameters.AddWithValue("@userName", tbUserName.Text);
             commandDatabase.Parameters.AddWithValue("@userType", cbUserType.Text);
             commandDatabase.Parameters.AddWithValue("@dateModified", DateTime.Today);
+            commandDatabase.Parameters.AddWithValue("@timeModified", DateTime.Now.ToString("hh:mm tt"));
 
             //foreach(UserModel tmp in userList)
             //{
@@ -278,6 +318,12 @@ namespace POSMGP.View
             String query = "UPDATE tbl_users SET isPriority=0 WHERE userID=@userID";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+
+            if (tbUserID.Text == "")
+            {
+                MessageBox.Show("Please select a user!");
+                return;
+            }
 
             commandDatabase.Parameters.AddWithValue("@userID", Convert.ToInt16(tbUserID.Text));
             commandDatabase.CommandTimeout = 60;

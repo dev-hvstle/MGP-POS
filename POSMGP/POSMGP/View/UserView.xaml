@@ -34,6 +34,7 @@
                     <GridViewColumn Header="User Name" Width="130" DisplayMemberBinding="{Binding userName}"/>
                     <GridViewColumn Header="Password" Width="130" DisplayMemberBinding="{Binding userPass}"/>
                     <GridViewColumn Header="Date Modified" Width="130" DisplayMemberBinding="{Binding dateModified}"/>
+                    <GridViewColumn Header="Date Modified" Width="130" DisplayMemberBinding="{Binding timeModified}"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -66,9 +67,9 @@
             <ComboBoxItem Content="User Name"></ComboBoxItem>
         </ComboBox>
         <ComboBox Name="cbUserType" Margin="206,352,745,344" IsEditable="True">
-            <ComboBoxItem Content="SuperAdmin"></ComboBoxItem>
+            <!--<ComboBoxItem Content="SuperAdmin"></ComboBoxItem>
             <ComboBoxItem Content="Admin"></ComboBoxItem>
-            <ComboBoxItem Content="Parametric"></ComboBoxItem>
+            <ComboBoxItem Content="Parametric"></ComboBoxItem>-->
         </ComboBox>
 
         <!--Buttons-->

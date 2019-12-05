@@ -16,6 +16,7 @@ namespace POSMGP.Model
         public String userPass { get; set; }
         public String userType { get; set; }
         public String dateModified { get; set; }
+        public String timeModified { get; set; }
         public int isPriority { get; set; }
     }
 }

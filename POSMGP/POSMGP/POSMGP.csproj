@@ -69,6 +69,7 @@
     <Compile Include="Model\TransactionDetailsModel.cs" />
     <Compile Include="Model\TransactionModel.cs" />
     <Compile Include="Model\UserModel.cs" />
+    <Compile Include="Model\UserTypeModel.cs" />
     <Compile Include="Viewmodel\LoginViewModel.cs" />
     <Compile Include="Viewmodel\PosViewModel.cs" />
     <Compile Include="Viewmodel\ProductsViewModel.cs" />

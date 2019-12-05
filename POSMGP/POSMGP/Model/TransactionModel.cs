@@ -15,6 +15,7 @@ namespace POSMGP.Model
         public Double totalAmount { get; set; }
         public Double paymentAmount { get; set; }
         public Double paymentChange { get; set; }
+        public String transactionTime { get; set; }
         public String transactionDate { get; set; }
     }
 }
