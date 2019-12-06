@@ -17,5 +17,6 @@ namespace POSMGP.Model
         public Double paymentChange { get; set; }
         public String transactionTime { get; set; }
         public String transactionDate { get; set; }
+        public int isPriority { get; set; }
     }
 }

@@ -55,6 +55,7 @@ namespace POSMGP.View
         void loadSuppliers()
         {
             lvSupplier.Items.Clear();
+            supplierList.Clear();
             String query = "SELECT * FROM tbl_supplier WHERE isPriority=1";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
@@ -146,6 +147,7 @@ namespace POSMGP.View
             String query = "SELECT * FROM tbl_supplier WHERE isPriority=0";
             tbSearch.IsEnabled = false;
             lvSupplier.Items.Clear();
+            supplierList.Clear();
 
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
@@ -237,7 +239,7 @@ namespace POSMGP.View
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
             //lvSupplier.Items.Clear();
-            String query = "UPDATE tbl_supplier SET isPriority=0 WHERE supplierID=@supplierID";
+            String query = "UPDATE tbl_supplier SET isPriority=1 WHERE supplierID=@supplierID";
 
             SupplierModel selectedSupplier = (SupplierModel)lvSupplier.SelectedItem;
             if(selectedSupplier.isPriority == 1)
@@ -308,7 +310,7 @@ namespace POSMGP.View
             }
             else
             {
-                commandDatabase.Parameters.AddWithValue("@isPriority", 1);
+                commandDatabase.Parameters.AddWithValue("@supplierID", Convert.ToInt16(tbSupplierID.Text));
                 commandDatabase.CommandTimeout = 60;
                 MySqlDataReader reader;
 

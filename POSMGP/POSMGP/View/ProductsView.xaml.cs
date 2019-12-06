@@ -29,13 +29,18 @@ namespace POSMGP.View
         public ProductsView()
         {
             InitializeComponent();
+            if(LoginModel.userRights == "SuperAdmin")
+            {
+                cbSearchBy.Items.Add("Deleted Products");
+            }
             loadProducts();
             loadSupplier();
         }
 
         void loadProducts()
         {
-            String query = "SELECT * FROM tbl_products";
+            lvProducts.Items.Clear();
+            String query = "SELECT * FROM tbl_products WHERE isPriority=1";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
             commandDatabase.CommandTimeout = 60;
@@ -51,8 +56,7 @@ namespace POSMGP.View
                 {
                     while (reader.Read())
                     {
-
-                        ProductsModel productList = new ProductsModel{ productID = reader.GetInt16(0), productName= reader.GetString(1), productPrice= reader.GetDouble(2), supplierID= reader.GetInt16(3), dateModified= reader.GetDateTime(4).ToString("yyyy-MM-dd")};
+                        ProductsModel productList = new ProductsModel{ productID = reader.GetInt16(0), productName= reader.GetString(1), productPrice= reader.GetDouble(2), supplierID= reader.GetInt16(3), modifiedBy = reader.GetInt16(4), dateModified= reader.GetDateTime(5).ToString("yyyy-MM-dd"), timeModified = reader.GetString(6), isPriority = reader.GetInt16(7)};
                         lvProducts.Items.Add(productList);
                     }
                     databaseConnection.Close();
@@ -65,9 +69,41 @@ namespace POSMGP.View
             }
         }
 
+        void loadDeletedProducts()
+        {
+            lvProducts.Items.Clear();
+            String query = "SELECT * FROM tbl_products WHERE isPriority=0";
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+            commandDatabase.CommandTimeout = 60;
+            MySqlDataReader reader;
+
+            try
+            {
+
+                databaseConnection.Open();
+                reader = commandDatabase.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ProductsModel productList = new ProductsModel { productID = reader.GetInt16(0), productName = reader.GetString(1), productPrice = reader.GetDouble(2), supplierID = reader.GetInt16(3), modifiedBy = reader.GetInt16(4), dateModified = reader.GetDateTime(5).ToString("yyyy-MM-dd"), timeModified = reader.GetString(6), isPriority = reader.GetInt16(7) };
+                        lvProducts.Items.Add(productList);
+                    }
+                    databaseConnection.Close();
+                }
+
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         void loadSupplier()
         {
-            String query = "SELECT * FROM tbl_supplier";
+            String query = "SELECT * FROM tbl_supplier WHERE isPriority=1";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
             commandDatabase.CommandTimeout = 60;
@@ -103,7 +139,7 @@ namespace POSMGP.View
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
             lvProducts.Items.Clear();
-            string query = "INSERT INTO tbl_products(`PName`,`PPrice`,`supplierID`,`dateModified`) VALUES (@productName, @productPrice, @supplierID, @dateModified)";
+            string query = "INSERT INTO tbl_products(`PName`,`PPrice`,`supplierID`, `modifiedBy`, `dateModified`, `timeModified`, `isPriority`) VALUES (@productName, @productPrice, @supplierID, @modifiedBy, @dateModified, @timeModified, @isPriority)";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
             commandDatabase.CommandTimeout = 60;
@@ -144,14 +180,29 @@ namespace POSMGP.View
 
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
-            string query = "UPDATE `tbl_products` SET `PName`=@productName,`PPrice`=@productPrice, `PSupplier`=@productSupplier, `dateAdded`=@productDateAdded WHERE PID = @productID";
+            ProductsModel selectedProduct = (ProductsModel)lvProducts.SelectedItem;
+            string query = "UPDATE `tbl_products` SET `PName`=@productName,`PPrice`=@productPrice, `PSupplier`=@productSupplier, `modifiedBy`=@modifiedBy, `dateModified`=@dateModified, `timeModified`=@timeModified, `isPriority`=@isPriority WHERE PID = @productID";
+            if (selectedProduct.isPriority == 0)
+            {
+                query = "UPDATE `tbl_products` SET `isPriority`=1 WHERE PID=@PID";
+            }
+
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
 
-            commandDatabase.Parameters.AddWithValue("@productID", Convert.ToInt16(tbProductID.Text));
-            commandDatabase.Parameters.AddWithValue("@productName", tbProductName.Text);
-            commandDatabase.Parameters.AddWithValue("@productPrice", Convert.ToDouble(tbProductPrice.Text));
-            commandDatabase.Parameters.AddWithValue("@productDateAdded", DateTime.Now.ToString("MM-dd-YYYY"));
+            if (selectedProduct.isPriority == 1) {
+                commandDatabase.Parameters.AddWithValue("@productID", Convert.ToInt16(tbProductID.Text));
+                commandDatabase.Parameters.AddWithValue("@productName", tbProductName.Text);
+                commandDatabase.Parameters.AddWithValue("@productPrice", Convert.ToDouble(tbProductPrice.Text));
+                commandDatabase.Parameters.AddWithValue("@modifiedBy", LoginModel.currentUserID);
+                commandDatabase.Parameters.AddWithValue("@dateModified", DateTime.Now.ToString("MM-dd-YYYY"));
+                commandDatabase.Parameters.AddWithValue("@timeModified", DateTime.Now.ToString("hh:mm tt"));
+                commandDatabase.Parameters.AddWithValue("@isPriority", 1);
+            }
+            else
+            {
+                commandDatabase.Parameters.AddWithValue("@PID", Convert.ToInt16(tbProductID.Text));
+            }
             commandDatabase.CommandTimeout = 60;
             MySqlDataReader reader;
 
@@ -159,9 +210,8 @@ namespace POSMGP.View
             {
                 databaseConnection.Open();
                 reader = commandDatabase.ExecuteReader();
-
+                MessageBox.Show("Product successfully updated!");
                 // Succesfully updated
-
                 databaseConnection.Close();
             }
             catch (Exception ex)
@@ -185,16 +235,121 @@ namespace POSMGP.View
 
         private void lvProducts_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ProductsModel selectedItem = (ProductsModel)lvProducts.SelectedItem;
-            tbProductID.Text = selectedItem.productID.ToString();
-            tbProductName.Text = selectedItem.productName;
-            tbProductPrice.Text = selectedItem.productPrice.ToString();
-            foreach(SupplierModel tmp in supplier)
-            {
-                if(tmp.supplierID == selectedItem.supplierID)
+            if (lvProducts.SelectedIndex > -1) {
+                ProductsModel selectedItem = (ProductsModel)lvProducts.SelectedItem;
+                tbProductID.Text = selectedItem.productID.ToString();
+                tbProductName.Text = selectedItem.productName;
+                tbProductPrice.Text = selectedItem.productPrice.ToString();
+                foreach (SupplierModel tmp in supplier)
                 {
-                    cbProductSupplier.Text = tmp.supplierID.ToString() + " - " + tmp.supplierName; 
+                    if (tmp.supplierID == selectedItem.supplierID)
+                    {
+                        cbProductSupplier.Text = tmp.supplierID.ToString() + " - " + tmp.supplierName;
+                    }
                 }
+            }
+            else
+            {
+
+            }
+        }
+
+        private void cbSearchBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbSearchBy.SelectedItem.ToString() == "Deleted Products")
+            {
+                loadDeletedProducts();
+                tbSearch.IsEnabled = false;
+                return;
+            }
+            loadProducts();
+            tbSearch.IsEnabled = true;
+        }
+
+        private void tbSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            String query = "";
+
+            if (tbSearch.Text == "")
+            {
+                loadProducts();
+                return;
+            }
+
+            if (cbSearchBy.Text == "Product ID")
+            {
+                query = "SELECT * FROM tbl_products WHERE PID LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
+            }
+            else if (cbSearchBy.Text == "Product Name")
+            {
+                query = "SELECT * FROM tbl_products WHERE PName LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
+            }
+            else if (cbSearchBy.Text == "Supplier ID")
+            {
+                query = "SELECT * FROM tbl_products WHERE supplierID LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
+            }
+
+
+            lvProducts.Items.Clear();
+
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+            commandDatabase.CommandTimeout = 60;
+            MySqlDataReader reader;
+
+
+            try
+            {
+
+                databaseConnection.Open();
+                reader = commandDatabase.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ProductsModel tmp;
+                        tmp = new ProductsModel { productID = reader.GetInt16(0), productName = reader.GetString(1), productPrice = reader.GetDouble(2), supplierID = reader.GetInt16(3), modifiedBy = reader.GetInt16(4), dateModified = reader.GetDateTime(5).ToString("yyyy-MM-dd"), timeModified = reader.GetString(6), isPriority = reader.GetInt16(7) };
+
+                        lvProducts.Items.Add(tmp);
+                    }
+                    databaseConnection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            String query = "UPDATE tbl_products SET isPriority=0 WHERE PID=@productID";
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+
+            if (tbProductID.Text == "")
+            {
+                MessageBox.Show("Please select a product!");
+                return;
+            }
+
+            commandDatabase.Parameters.AddWithValue("@productID", Convert.ToInt16(tbProductID.Text));
+            commandDatabase.CommandTimeout = 60;
+            MySqlDataReader reader;
+            try
+            {
+                databaseConnection.Open();
+                reader = commandDatabase.ExecuteReader();
+                databaseConnection.Close();
+                loadProducts();
+                MessageBox.Show("Product successfully deleted!");
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

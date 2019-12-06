@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:POSMGP.View"
         mc:Ignorable="d"
-        Title="TransactionDetailView" AllowsTransparency="True" Height="380" Width="475" WindowStyle="None">
+        Title="TransactionDetailView" AllowsTransparency="True" Height="380" Width="475" WindowStyle="None" MouseDown="Window_MouseDown">
     <Grid Background="#50514F">
         <ListView x:Name="lvTransactionDetails" Margin="0,166,0,0" BorderThickness="0">
             <ListView.View>
@@ -18,6 +18,17 @@
             </ListView.View>
         </ListView>
 
+        <Button ToolTip="Exit" Name="btnClose" Width="35" Height="35" Margin="435,1,5,344" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnClose_Click">
+            <StackPanel>
+                <Image Source="pack://application:,,,/Resources/icnClose.png"></Image>
+            </StackPanel>
+        </Button>
+        <Button Name="btnMinimize" Width="35" Height="35" Margin="398,2,42,343" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnMinimize_Click">
+            <StackPanel>
+                <Image Source="pack://application:,,,/Resources/icnMinimize.png"/>
+            </StackPanel>
+        </Button>
+
 
         <Label Name="labelCostumerName" Foreground="#F25F5C" Content="Costumer Name:" FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,43,0,0"/>
         <Label Name="labelTransId" Content="Transaction ID:"  Foreground="#F25F5C" FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,72,0,0"/>
@@ -25,11 +36,11 @@
         <Label Name="labelDate" Content="Transaction Date:"  Foreground="#F25F5C" FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="237,43,0,0"/>
         <Label Name="labelTotal" Content="Total Amount (php):"  Foreground="#F25F5C" FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="237,72,0,0"/>
 
-        <TextBox Name="tbTransId" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="117,75,247,0"/>
-        <TextBox Name="tbCostumerName" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Margin="117,48,247,0"/>
-        <TextBox Name="tbCashier" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="117,102,247,0"/>
-        <TextBox Name="tbTransactionDate" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="355,46,10,0"/>
-        <TextBox Name="tbTotalAmount" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="355,78,10,0"/>
+        <TextBox Name="tbTransId" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="117,75,247,0" IsEnabled="False"/>
+        <TextBox Name="tbCostumerName" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Margin="117,48,247,0" IsEnabled="False"/>
+        <TextBox Name="tbCashier" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="117,102,247,0" IsEnabled="False"/>
+        <TextBox Name="tbTransactionDate" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="355,46,10,0" IsEnabled="False"/>
+        <TextBox Name="tbTotalAmount" Height="18" TextWrapping="Wrap" VerticalAlignment="Top" Margin="355,78,10,0" IsEnabled="False"/>
 
 
     </Grid>

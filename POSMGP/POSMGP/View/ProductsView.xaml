@@ -14,7 +14,9 @@
                     <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding productName}"/>
                     <GridViewColumn Header="Price(php)" Width="120" DisplayMemberBinding="{Binding productPrice}"/>
                     <GridViewColumn Header="Supplier" Width="200" DisplayMemberBinding="{Binding supplierID}"/>
+                    <GridViewColumn Header="Modified By" Width="100" DisplayMemberBinding="{Binding modifiedBy}"/>
                     <GridViewColumn Header="Date Modified" Width="100" DisplayMemberBinding="{Binding dateModified}"/>
+                    <GridViewColumn Header="Time Modified" Width="100" DisplayMemberBinding="{Binding timeModified}"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -32,11 +34,15 @@
         <TextBox x:Name="tbProductID"  Height="24" Margin="206,300,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="218" IsEnabled="False" />
         <TextBox x:Name="tbProductName" Height="24" Margin="206,346,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="218" />
         <TextBox x:Name="tbProductPrice" Height="24" Margin="206,392,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="218" />
-        <TextBox x:Name="tbSearch" Height="24" Margin="730,167,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="326" />
+        <TextBox x:Name="tbSearch" Height="24" Margin="730,167,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="326" TextChanged="tbSearch_TextChanged" />
 
         <!--ComboBox-->
-        <ComboBox Name="cbProductSupplier" Margin="206,440,745,256" IsEditable="True"/>
-        <ComboBox Name="cbSearchBy" Margin="585,167,456,529" IsEditable="True"/>
+        <ComboBox Name="cbProductSupplier" Margin="206,440,745,256" />
+        <ComboBox Name="cbSearchBy" Margin="585,167,456,529" SelectionChanged="cbSearchBy_SelectionChanged" >
+            <ComboBoxItem Content="Product ID"></ComboBoxItem>
+            <ComboBoxItem Content="Product Name"></ComboBoxItem>
+            <ComboBoxItem Content="Supplier ID"></ComboBoxItem>
+        </ComboBox>
 
         <!--Buttons-->
         <Button Name="btnResetFields" Content="Reset Fields" FontFamily="Century Gothic" FontSize="22" Foreground="White" Background="#FF323232" BorderThickness="0" Margin="0,569,705,108" Click="btnResetFields_Click" ></Button>
@@ -50,10 +56,10 @@
         <Button Name="btnUpdate" Margin="151,612,859,0" BorderThickness="0" Background="#247BA0" Click="btnUpdate_Click" >
             <StackPanel Orientation="Vertical">
                 <Image Source="pack://application:,,,/Resources/icnUpdate.png" Width="50"></Image>
-                <AccessText Text="_Update Product" FontFamily="Century Gothic" FontSize="16" Foreground="White"></AccessText>
+                <AccessText Name="lblUpdate" Text="_Update Product" FontFamily="Century Gothic" FontSize="16" Foreground="White"></AccessText>
             </StackPanel>
         </Button>
-        <Button Name="btnDelete" Margin="0,612,1010,0" BorderThickness="0" Background="#F25F5C">
+        <Button Name="btnDelete" Margin="0,612,1010,0" BorderThickness="0" Background="#F25F5C" Click="btnDelete_Click">
             <StackPanel Orientation="Vertical">
                 <Image Source="pack://application:,,,/Resources/icnDelete.png" Width="50"></Image>
                 <AccessText Text="Delete Product" FontFamily="Century Gothic" FontSize="18" Foreground="white"></AccessText>

@@ -26,11 +26,17 @@ namespace POSMGP.View
         List<TransactionModel> transactions = new List<TransactionModel>();
         
         const string connectionString = "datasource=127.0.0.1;port=3306;username=root;password=;database=db_mgppos;";
+        string queryAll = "SELECT * FROM tbl_transactionmaster WHERE isPriority=1";
         public TransactionView()
         {
             InitializeComponent();
             //dateFirst.cus
-            string queryAll = "SELECT * FROM tbl_transactionmaster";
+            //string queryAll = "SELECT * FROM tbl_transactionmaster";
+            if(LoginModel.userRights == "SuperAdmin")
+            {
+                cbSearch.Items.Add("Deleted Transactions");
+                //btnRetrieveRecord.Visibility = Visibility.Visible;
+            }
             loadTransaction(queryAll);
         }
 
@@ -56,7 +62,7 @@ namespace POSMGP.View
                 {
                     while (reader.Read())
                     {
-                        TransactionModel tmp = new TransactionModel {transactionID = reader.GetInt16(0), customerName = reader.GetString(1), userID = reader.GetInt16(2), totalItems = reader.GetInt16(3), totalAmount = reader.GetDouble(4), paymentAmount = reader.GetDouble(5), paymentChange = reader.GetDouble(6), transactionDate = reader.GetDateTime(7).ToString("yyyy-MM-dd") };
+                        TransactionModel tmp = new TransactionModel {transactionID = reader.GetInt16(0), customerName = reader.GetString(1), userID = reader.GetInt16(2), totalItems = reader.GetInt16(3), totalAmount = reader.GetDouble(4), paymentAmount = reader.GetDouble(5), paymentChange = reader.GetDouble(6), transactionDate = reader.GetDateTime(7).ToString("yyyy-MM-dd"), transactionTime = reader.GetString(8), isPriority = reader.GetInt16(9) };
                         transactions.Add(tmp);
                         lvTransactions.Items.Add(tmp);
                     }
@@ -65,6 +71,47 @@ namespace POSMGP.View
                 {
                     //Console.WriteLine("There are no available products");
                     
+                }
+
+                databaseConnection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        void loadDeletedTransaction()
+        {
+            String query = "SELECT * FROM tbl_transactionmaster WHERE isPriority=0";
+            transactions.Clear();
+            lvTransactions.Items.Clear();
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+            commandDatabase.CommandTimeout = 60;
+            MySqlDataReader reader;
+
+
+            try
+            {
+                databaseConnection.Open();
+                reader = commandDatabase.ExecuteReader();
+                // Success, now list 
+
+                // If there are available rows
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        TransactionModel tmp = new TransactionModel { transactionID = reader.GetInt16(0), customerName = reader.GetString(1), userID = reader.GetInt16(2), totalItems = reader.GetInt16(3), totalAmount = reader.GetDouble(4), paymentAmount = reader.GetDouble(5), paymentChange = reader.GetDouble(6), transactionDate = reader.GetDateTime(7).ToString("yyyy-MM-dd"), transactionTime = reader.GetString(8), isPriority = reader.GetInt16(9) };
+                        transactions.Add(tmp);
+                        lvTransactions.Items.Add(tmp);
+                    }
+                }
+                else
+                {
+                    //Console.WriteLine("There are no available products");
+
                 }
 
                 databaseConnection.Close();
@@ -149,6 +196,121 @@ namespace POSMGP.View
             TransactionModel tmp = (TransactionModel)lvTransactions.SelectedItem;
             TransactionDetailView openView = new TransactionDetailView(tmp.customerName, Convert.ToInt16(tmp.transactionID), Convert.ToInt16(tmp.userID), tmp.transactionDate, Convert.ToDouble(tmp.totalAmount));
             openView.Show();
+        }
+
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            String query = "UPDATE tbl_transactionmaster SET isPriority=0 WHERE transactionID=@transactionID";
+
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+            commandDatabase.CommandTimeout = 60;
+
+            try
+            {
+                databaseConnection.Open();
+                commandDatabase.ExecuteReader();
+                MessageBox.Show("Transaction successfully deleted!");
+                databaseConnection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                loadTransaction(queryAll);
+            }
+        }
+
+        private void btnRetrieveRecord_Click(object sender, RoutedEventArgs e)
+        {
+            String query = "UPDATE tbl_transactionmaster SET isPriority=1 WHERE transactionID=@transactionID";
+
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+            commandDatabase.CommandTimeout = 60;
+
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void tbSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            String query = "";
+
+            if (tbSearch.Text == "")
+            {
+                loadTransaction(queryAll);
+                return;
+            }
+
+            if (cbSearch.Text == "Transaction ID")
+            {
+                query = "SELECT * FROM tbl_transactionmaster WHERE transactionID LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
+            }
+            else if (cbSearch.Text == "Product Name")
+            {
+                query = "SELECT * FROM tbl_transactionmaster WHERE customerName LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
+            }
+            else if (cbSearch.Text == "Supplier ID")
+            {
+                query = "SELECT * FROM tbl_transactionmaster WHERE userID LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
+            }
+
+
+            lvTransactions.Items.Clear();
+
+            MySqlConnection databaseConnection = new MySqlConnection(connectionString);
+            MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
+            commandDatabase.CommandTimeout = 60;
+            MySqlDataReader reader;
+
+
+            try
+            {
+
+                databaseConnection.Open();
+                reader = commandDatabase.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        TransactionModel tmp;
+                        tmp = new TransactionModel { transactionID = reader.GetInt16(0), customerName = reader.GetString(1), userID = reader.GetInt16(2), totalItems = reader.GetInt16(3), totalAmount = reader.GetDouble(4), paymentAmount = reader.GetDouble(5), paymentChange = reader.GetDouble(6), transactionDate = reader.GetDateTime(7).ToString("yyyy-MM-dd"), transactionTime = reader.GetString(8), isPriority = reader.GetInt16(9) };
+
+                        lvTransactions.Items.Add(tmp);
+                    }
+                    databaseConnection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void cbSearch_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbSearch.SelectedItem.ToString() == "Deleted Transactions")
+            {
+                loadDeletedTransaction();
+                tbSearch.IsEnabled = false;
+                btnRetrieveRecord.Visibility = Visibility.Visible;
+                return;
+            }
+            loadTransaction(queryAll);
+            btnRetrieveRecord.Visibility = Visibility.Collapsed;
+            tbSearch.IsEnabled = true;
         }
     }
 }

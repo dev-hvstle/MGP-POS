@@ -198,7 +198,7 @@ namespace POSMGP.View
                 return;
 
             }
-            string query = "INSERT INTO tbl_transactionmaster(`customerName`, `userID`,`totalItems`,`totalAmount`,`paymentAmount`, `paymentChange`, `transactionDate`) VALUES (@customerName, @userID, @totalItems, @totalAmount, @paymentAmount, @paymentChange, @transactionDate)";
+            string query = "INSERT INTO tbl_transactionmaster(`customerName`, `userID`,`totalItems`,`totalAmount`,`paymentAmount`, `paymentChange`, `transactionDate`, `transactionTime`, `isPriority`) VALUES (@customerName, @userID, @totalItems, @totalAmount, @paymentAmount, @paymentChange, @transactionDate, @transactionTime, @isPriority)";
             string query2 = "INSERT INTO tbl_transactiondetails(`transactionID`, `PID`, `productQuantity`, `productSubtotal`) VALUES (@transactionID, @PID, @productQuantity, @productSubtotal)";
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
@@ -212,9 +212,11 @@ namespace POSMGP.View
             commandDatabase.Parameters.AddWithValue("@paymentAmount", Convert.ToDouble(tbPayment.Text));
             commandDatabase.Parameters.AddWithValue("@paymentChange", Convert.ToDouble(tbPayment.Text) - Convert.ToDouble(lblTotalCostDisplay.Content));
             commandDatabase.Parameters.AddWithValue("@transactionDate", DateTime.Now);
+            commandDatabase.Parameters.AddWithValue("@transactionTime", DateTime.Now.ToString("hh:mm tt"));
+            commandDatabase.Parameters.AddWithValue("@isPriority", 1);
 
-           
-                try
+
+            try
                 {
                     databaseConnection.Open();
                     commandDatabase.ExecuteNonQuery();
