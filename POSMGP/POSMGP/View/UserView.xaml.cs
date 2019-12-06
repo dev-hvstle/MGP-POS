@@ -148,7 +148,7 @@ namespace POSMGP.View
                             tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), timeModified = reader.GetString(8), isPriority = reader.GetInt16(9) };
                         }else
                         {
-                            tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd") };
+                            tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), timeModified = reader.GetString(8) };
                         }
                            
                         userList.Add(tmp);
@@ -238,29 +238,27 @@ namespace POSMGP.View
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
             String query = "";
-            int retriveOrNot = 0;
+            //int retriveOrNot = 0;
             MySqlConnection databaseConnection = new MySqlConnection(connectionString);
 
             UserModel tmp = (UserModel)lvUser.SelectedItem;
-            if (tmp.isPriority == 0)
+            if (tmp.isPriority == 1)
             {
-                query = "UPDATE tbl_users SET isPriority=@isPriority";
-                retriveOrNot = 1;
+                //query = "UPDATE tbl_users SET isPriority=@isPriority";
+                //retriveOrNot = 1;
+                query = "UPDATE `tbl_users` SET `userFirstName`=@userFName,`userMiddleName`=@userMName, `userLastName`=@userLName, `userType`=@userType, `userName`=@userName, `userPassword`=@userPass, `dateModified`=@dateModified, `timeModified`=@timeModified WHERE userID = @userID";
             }
             else
             {
-                query = "UPDATE `tbl_users` SET `userFirstName`=@userFName,`userMiddleName`=@userMName, `userLastName`=@userLName, `userType`=@userType, `userName`=@userName, `userPassword`=@userPass, `dateAdded`=@dateAdded WHERE userID = @userID";
+                query = "UPDATE tbl_users SET isPriority=@isPriority";
+                //query = "UPDATE `tbl_users` SET `userFirstName`=@userFName,`userMiddleName`=@userMName, `userLastName`=@userLName, `userType`=@userType, `userName`=@userName, `userPassword`=@userPass, `dateModified`=@dateModified, `timeModified`=@timeModified WHERE userID = @userID";
             }
 
             MySqlCommand commandDatabase = new MySqlCommand(query, databaseConnection);
 
-            if (tmp.isPriority == 0)
+            if (tmp.isPriority == 1)
             {
-                commandDatabase.Parameters.AddWithValue("@isPriority", 1);
-
-            }
-            else
-            {
+                //commandDatabase.Parameters.AddWithValue("@isPriority", 1);
                 commandDatabase.Parameters.AddWithValue("@userID", Convert.ToInt16(tbUserID.Text));
                 commandDatabase.Parameters.AddWithValue("@userFName", tbFirstName.Text);
                 commandDatabase.Parameters.AddWithValue("@userMName", tbMiddleName.Text);
@@ -268,7 +266,13 @@ namespace POSMGP.View
                 commandDatabase.Parameters.AddWithValue("@userType", cbUserType.Text);
                 commandDatabase.Parameters.AddWithValue("@userName", tbUserName.Text);
                 commandDatabase.Parameters.AddWithValue("@userPass", encryptText.ComputeSha256Hash(tbPassword.Text));
-                commandDatabase.Parameters.AddWithValue("@dateAdded", DateTime.Today);
+                commandDatabase.Parameters.AddWithValue("@dateModified", DateTime.Today);
+                commandDatabase.Parameters.AddWithValue("@timeModified", DateTime.Now.ToString("hh:mm tt"));
+
+            }
+            else
+            {
+                commandDatabase.Parameters.AddWithValue("@isPriority", 1);
             }
 
             commandDatabase.CommandTimeout = 60;
@@ -291,9 +295,10 @@ namespace POSMGP.View
             }
             finally
             {
-                if (retriveOrNot == 1)
+                if (cbSearch.Text == "Deleted User")
                 {
                     loadDeletedUser();
+
                 }
                 else
                 {
@@ -354,15 +359,15 @@ namespace POSMGP.View
 
             if (cbSearch.Text == "First Name")
             {
-                query = "SELECT * FROM tbl_users WHERE userFirstName LIKE '%" + tbSearch.Text + "%'";
+                query = "SELECT * FROM tbl_users WHERE userFirstName LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
             }
             else if(cbSearch.Text == "Last Name")
             {
-                query = "SELECT * FROM tbl_users WHERE userLastName LIKE '%" + tbSearch.Text + "%'";
+                query = "SELECT * FROM tbl_users WHERE userLastName LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
             }
             else if (cbSearch.Text == "User Name")
             {
-                query = "SELECT * FROM tbl_users WHERE userName LIKE '%" + tbSearch.Text + "%'";
+                query = "SELECT * FROM tbl_users WHERE userName LIKE '%" + tbSearch.Text + "%' AND isPriority=1";
             }
             else if(cbSearch.Text == "Deleted User")
             {
@@ -388,15 +393,8 @@ namespace POSMGP.View
                     while (reader.Read())
                     {
                         UserModel tmp;
-                        if (LoginModel.userRights == "SuperAdmin")
-                        {
-                            tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), isPriority = reader.GetInt16(8) };
-                        }
-                        else
-                        {
-                            tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd") };
-                        }
-
+                        
+                        tmp = new UserModel { userID = reader.GetInt16(0), userType = reader.GetString(1), userName = reader.GetString(2), userPass = reader.GetString(3), userFName = reader.GetString(4), userMName = reader.GetString(5), userLName = reader.GetString(6), dateModified = reader.GetDateTime(7).ToString("yyyy-MM-dd"), isPriority = reader.GetInt16(8) };
                         userList.Add(tmp);
                         lvUser.Items.Add(tmp);
                     }

@@ -15,21 +15,36 @@
                     <GridViewColumn Header="Name" Width="230" DisplayMemberBinding="{Binding supplierName}"/>
                     <GridViewColumn Header="Location" Width="225" DisplayMemberBinding="{Binding supplierLocation}"/>
                     <GridViewColumn Header="Date Modified" Width="150" DisplayMemberBinding="{Binding dateModified}"/>
+                    <GridViewColumn Header="Time Modified" Width="150" DisplayMemberBinding="{Binding timeModified}"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
         <!--Labels-->
+        <Label Name="lblSearch" Content="Search :" FontFamily="Century Gothic" FontSize="20" Foreground="#F25F5C" Margin="458,152,616,534"/>
         <Label Name="lblTitleUser" Content="Supplier" FontFamily="Century Gothic" FontWeight="Bold" Foreground="#247BA0" FontSize="60" Margin="23,32,890,596"/>
         <Label Name="lblTitleInfo" Content="Information" FontFamily="Century Gothic" FontWeight="Bold" Foreground="#70C1B3" FontSize="60" Margin="26,112,734,536"/>
         <Label Name="lblUserID" Content="Supplier ID :" FontFamily="Century Gothic" FontSize="20" Foreground="#F25F5C" Margin="30,315,996,371"/>
         <Label Name="lblUserName" Content="Supplier Name :" FontFamily="Century Gothic" FontSize="20" Foreground="#F25F5C" Margin="30,361,973,325"/>
-        <Label Name="lblPassword" Content="Location :" FontFamily="Century Gothic" FontSize="20" Foreground="#F25F5C" Margin="30,407,996,279"/>
+        <Label Name="lblPassword" Content="Location(City) :" FontFamily="Century Gothic" FontSize="20" Foreground="#F25F5C" Margin="30,407,976,279"/>
+        <Label Name="lblContact" Content="Contact No:" FontFamily="Century Gothic" FontSize="20" Foreground="#F25F5C" Margin="30,455,994,231"/>
+        <Label Name="lblNumber" Content="+63" FontFamily="Century Gothic" FontSize="15" Foreground="#F25F5C" Margin="165,458,964,235"/>
+
+        <!--ComboBox-->
+        <ComboBox x:Name="cbSearch" HorizontalAlignment="Left" Margin="550,157,0,0" VerticalAlignment="Top" Width="120" Height="25" SelectionChanged="cbSearch_SelectionChanged">
+            <ComboBoxItem Content="Supplier ID"></ComboBoxItem>
+            <ComboBoxItem Content="Supplier Name"></ComboBoxItem>
+            <ComboBoxItem Content="Location(City)"></ComboBoxItem>
+        </ComboBox>
 
         <!--TextBox-->
+        <TextBox x:Name="tbSearch" HorizontalAlignment="Left" Height="25" Margin="674,157,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="355" TextChanged="tbSearch_TextChanged"/>
         <TextBox x:Name="tbSupplierID"  Height="24" Margin="206,322,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="218" IsEnabled="False" />
         <TextBox x:Name="tbSupplierName" Height="24" Margin="206,368,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="218" />
-        <TextBox x:Name="tbSupplierLocation" Height="24" Margin="206,414,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="218" />
+        <TextBox x:Name="tbSupplierLocation" Height="24" Margin="206,414,744,0" TextWrapping="Wrap" VerticalAlignment="Top" />
+
+        <!--ComboBox-->
+        <ComboBox x:Name="cbContact" Margin="206,461,744,0" VerticalAlignment="Top" IsEditable="True" PreviewTextInput="cbContact_PreviewTextInput" />
 
         <!--Buttons-->
         <Button Name="btnResetFields" Content="Reset Fields" FontFamily="Century Gothic" FontSize="22" Foreground="White" Background="#FF323232" BorderThickness="0" Margin="0,569,705,108" Click="btnResetFields_Click"></Button>
@@ -42,7 +57,7 @@
         <Button Name="btnUpdate" Margin="151,612,859,0" BorderThickness="0" Background="#247BA0" Click="btnUpdate_Click">
             <StackPanel Orientation="Vertical">
                 <Image Source="pack://application:,,,/Resources/icnUpdate.png" Width="50"></Image>
-                <AccessText Text="_Update Supplier" FontFamily="Century Gothic" FontSize="16" Foreground="White"></AccessText>
+                <AccessText Name="lblUpdate" Text="_Update Supplier" FontFamily="Century Gothic" FontSize="16" Foreground="White"></AccessText>
             </StackPanel>
         </Button>
         <Button Name="btnDelete" Margin="0,612,1010,0" BorderThickness="0" Background="#F25F5C" Click="btnDelete_Click">
@@ -51,6 +66,9 @@
                 <AccessText Text="Delete Supplier" FontFamily="Century Gothic" FontSize="16" Foreground="white"></AccessText>
             </StackPanel>
         </Button>
+        <Button x:Name="btnDeleteContact" Content="Delete Number" Margin="335,499,744,0" VerticalAlignment="Top" Click="btnDeleteContact_Click"/>
+        <Button x:Name="btnAddContact" Content="Add Number" Margin="229,499,847,0" VerticalAlignment="Top" Click="btnAddContact_Click"/>
+
 
     </Grid>
 </UserControl>
