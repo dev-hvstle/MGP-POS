@@ -181,8 +181,13 @@ namespace POSMGP.View
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
             ProductsModel selectedProduct = (ProductsModel)lvProducts.SelectedItem;
-            string query = "UPDATE `tbl_products` SET `PName`=@productName,`PPrice`=@productPrice, `PSupplier`=@productSupplier, `modifiedBy`=@modifiedBy, `dateModified`=@dateModified, `timeModified`=@timeModified, `isPriority`=@isPriority WHERE PID = @productID";
-            if (selectedProduct.isPriority == 0)
+             String query;
+            if (selectedProduct.isPriority == 1)
+            {
+                query = "UPDATE `tbl_products` SET `PName`=@productName,`PPrice`=@productPrice, `supplierID`=@productSupplier, `modifiedBy`=@modifiedBy, `dateModified`=@dateModified, `timeModified`=@timeModified WHERE PID = @productID";
+                
+            }
+            else
             {
                 query = "UPDATE `tbl_products` SET `isPriority`=1 WHERE PID=@PID";
             }
@@ -194,10 +199,11 @@ namespace POSMGP.View
                 commandDatabase.Parameters.AddWithValue("@productID", Convert.ToInt16(tbProductID.Text));
                 commandDatabase.Parameters.AddWithValue("@productName", tbProductName.Text);
                 commandDatabase.Parameters.AddWithValue("@productPrice", Convert.ToDouble(tbProductPrice.Text));
+                commandDatabase.Parameters.AddWithValue("@productSupplier", supplier.ElementAt(cbProductSupplier.SelectedIndex).supplierID);
                 commandDatabase.Parameters.AddWithValue("@modifiedBy", LoginModel.currentUserID);
-                commandDatabase.Parameters.AddWithValue("@dateModified", DateTime.Now.ToString("MM-dd-YYYY"));
+                commandDatabase.Parameters.AddWithValue("@dateModified", DateTime.Now.ToString("yyyy-MM-dd"));
                 commandDatabase.Parameters.AddWithValue("@timeModified", DateTime.Now.ToString("hh:mm tt"));
-                commandDatabase.Parameters.AddWithValue("@isPriority", 1);
+                //commandDatabase.Parameters.AddWithValue("@isPriority", 1);
             }
             else
             {
